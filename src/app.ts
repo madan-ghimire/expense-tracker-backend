@@ -1,5 +1,8 @@
 import express from "express";
+import expenseRoutes from "./presentation/routes/expenseRoutes";
 import type { Express, Request, Response } from "express";
+import { errorHandler } from "./middleware/errorHandler";
+import { setupSwagger } from "@/docs/swagger";
 
 const createApp = (): Express => {
   const app = express();
@@ -21,6 +24,12 @@ const createApp = (): Express => {
       { id: 2, name: "Jane Smith" },
     ]);
   });
+
+  app.use("/api", expenseRoutes);
+
+  setupSwagger(app);
+
+  app.use(errorHandler);
 
   return app;
 };
