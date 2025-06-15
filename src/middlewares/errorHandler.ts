@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { AppError } from "../domain/errors/AppError";
+import { ZodError } from "zod";
 
 const prismaErrorMessages: Record<string, string> = {
   P1000: "Authentication failed against the database.",
@@ -58,6 +59,19 @@ export const errorHandler = (
 ): void => {
   console.error("🛑 Error occurred:", err);
 
+  // ✅ Handle Zod validation errors (NEW)
+  if (err instanceof ZodError) {
+    const flattened = err.flatten();
+    res.status(400).json({
+      error: "Validation failed",
+      issues: {
+        fieldErrors: flattened.fieldErrors,
+        formErrors: flattened.formErrors,
+      },
+    });
+    return;
+  }
+
   // ✅ Handle Prisma known errors
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     const code = err.code;
@@ -68,10 +82,12 @@ export const errorHandler = (
 
   // ✅ Handle Prisma validation errors
   if (err instanceof Prisma.PrismaClientValidationError) {
+    console.error("🛑 Prisma Validation Error:", err.message);
     res.status(400).json({
-      error: "Validation failed. Check your input.",
+      error:
+        "Validation failed. Please ensure all required fields are provided.",
+      details: err.message, // Optional: include message for dev
     });
-    return;
   }
 
   // ✅ Handle custom AppError
