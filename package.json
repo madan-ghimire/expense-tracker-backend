@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
+  "prisma": {
+  "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
     "clean": "rimraf node_modules",
     "dev": "tsx watch --clear-screen=false src/server.ts",
@@ -14,7 +17,8 @@
     "db:push": "prisma generate && prisma db push",
     "db-sync-dev": "prisma generate && prisma migrate dev ",
     "db-sync-reset": "prisma generate && prisma migrate reset",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -41,6 +45,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "prisma": "^6.9.0",
     "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
