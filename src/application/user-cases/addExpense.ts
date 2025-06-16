@@ -1,12 +1,16 @@
-import { IExpenseRepository } from "../../domain/repositories/expenseRepository";
+import { IExpenseRepository } from "../../domain/expense/repositories/IExpenseRepository";
 
-export const addExpense =
-  (repo: IExpenseRepository) =>
-  (data: {
-    title: string;
-    amount: number;
-    category: string;
-    userId: string;
-  }) => {
-    return repo.create(data);
-  };
+interface AddExpenseInput {
+  title: string;
+  amount: number;
+  category: string;
+  userId: string;
+  createdAt: Date;
+}
+
+export const addExpense = async (
+  repo: IExpenseRepository,
+  data: AddExpenseInput
+) => {
+  return await repo.create(data);
+};

@@ -31,7 +31,7 @@ const createApp = (): Express => {
     ]);
   });
 
-  app.use("/api", expenseRoutes);
+  app.use(expenseRoutes);
 
   app.use(authRoutes);
 
