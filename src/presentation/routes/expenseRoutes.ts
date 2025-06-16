@@ -7,8 +7,88 @@ import {
   updateExpense,
   deleteExpense,
 } from "../controllers/expenseController";
+import { authenticate } from "@/middlewares/authenticate";
+import { authorize } from "@/middlewares/authorize";
 
 const router: Router = Router();
+
+/**
+ * @swagger
+ * /api/expense/getAll:
+ *   get:
+ *     summary: Get all expenses
+ *     tags: [Expenses]
+ *     responses:
+ *       200:
+ *         description: A list of all expenses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                     example: "Grocery"
+ *                   amount:
+ *                     type: number
+ *                     example: 150
+ *                   category:
+ *                     type: string
+ *                     example: "Food"
+ *                   userId:
+ *                     type: string
+ *                     example: "user_123"
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get("/api/expense/getAll", authenticate, getAllExpenses);
+
+/**
+ * @swagger
+ * /api/expense/getById/{id}:
+ *   get:
+ *     summary: Get an expense by ID
+ *     tags: [Expenses]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the expense
+ *     responses:
+ *       200:
+ *         description: Expense found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 title:
+ *                   type: string
+ *                 amount:
+ *                   type: number
+ *                 category:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: Expense not found
+ */
+
+router.get("/api/expense/getById/:id", getExpense);
 
 /**
  * @swagger
@@ -64,85 +144,7 @@ const router: Router = Router();
  *       500:
  *         description: Internal Server Error
  */
-router.post("/api/expenses", createExpense);
-
-/**
- * @swagger
- * /api/expense/getAll:
- *   get:
- *     summary: Get all expenses
- *     tags: [Expenses]
- *     responses:
- *       200:
- *         description: A list of all expenses
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   title:
- *                     type: string
- *                     example: "Grocery"
- *                   amount:
- *                     type: number
- *                     example: 150
- *                   category:
- *                     type: string
- *                     example: "Food"
- *                   userId:
- *                     type: string
- *                     example: "user_123"
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *       500:
- *         description: Internal Server Error
- */
-router.get("/api/expense/getAll", getAllExpenses);
-
-/**
- * @swagger
- * /api/expense/getById/{id}:
- *   get:
- *     summary: Get an expense by ID
- *     tags: [Expenses]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the expense
- *     responses:
- *       200:
- *         description: Expense found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 title:
- *                   type: string
- *                 amount:
- *                   type: number
- *                 category:
- *                   type: string
- *                 userId:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *       404:
- *         description: Expense not found
- */
-
-router.get("/api/expense/getById/:id", getExpense);
+router.post("/api/expenses", authenticate, authorize("ADMIN"), createExpense);
 
 /**
  * @swagger
@@ -179,7 +181,7 @@ router.get("/api/expense/getById/:id", getExpense);
  *       404:
  *         description: Expense not found
  */
-router.put("/api/expense/:id", updateExpense);
+router.put("/api/expense/:id", authenticate, updateExpense);
 
 /**
  * @swagger
@@ -200,6 +202,11 @@ router.put("/api/expense/:id", updateExpense);
  *       404:
  *         description: Expense not found
  */
-router.delete("/api/expense/:id", deleteExpense);
+router.delete(
+  "/api/expense/:id",
+  authenticate,
+  authorize("ADMIN"),
+  deleteExpense
+);
 
 export default router;
