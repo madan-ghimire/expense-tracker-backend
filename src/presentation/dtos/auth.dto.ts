@@ -55,3 +55,14 @@ export const SignupSchema = z.object({
 });
 
 export type SignupDto = z.infer<typeof SignupSchema>;
+
+export const SigninDto = z.object({
+  email: z
+    .string()
+    .email("Invalid email format")
+    .max(100, "Email cannot exceed 100 characters"),
+
+  password: z.string().min(1, "Password is required"),
+});
+
+export type SigninDto = z.infer<typeof SigninDto>;
