@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  loginEnabled  Boolean   @default(true)
+  emailVerified Boolean   @default(false)
+  firstName     String
+  lastName      String
+  password      String
+  displayName   String
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+  isArchived    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Expense       Expense[]
+}
+
+enum Role {
+  USER
+  ADMINISTRATOR
+  SUPERADMIN
+  SYSTEM_ANALYST
+}
+
+model Expense {
+  id        String   @id @default(uuid())
+  title     String
+  amount    Float
+  category  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+// I need to add scripts for prisma migrate db-sync-dev reset, migrate db push do add for me

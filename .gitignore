@@ -43,3 +43,5 @@ coverage/
 # Test cache
 jest.config.js
 .cache/
+
+/src/generated/prisma
