@@ -9,3 +9,11 @@ export const generateToken = (userId: string, role: string) => {
 export const verifyToken = (token: string) => {
   return jwt.verify(token, SECRET_KEY);
 };
+
+export const generateResetToken = (userId: string) => {
+  return jwt.sign({ userId }, SECRET_KEY, { expiresIn: "15m" });
+};
+
+export const verifyResetToken = (token: string) => {
+  return jwt.verify(token, SECRET_KEY);
+};
