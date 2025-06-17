@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2023",
+    "target": "ES2020",
     // "module": "NodeNext",
-    "module": "commonjs",
+    // "module": "commonjs",
+    "module": "ES2022", // ✅ Or 'ESNext' or 'NodeNext'
 
-    // "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "lib": ["ES2023"],
     "outDir": "./dist",
     "rootDir": "./src",

@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { AppError } from "../../domain/errors/AppError";
 import { hashPassword, verifyPassword } from "../../utils/hash";
+import logger from "@/infrastructure/logger";
+
 import {
   generateToken,
   generateResetToken,
@@ -19,6 +21,7 @@ export const register = async (data: SignupDto) => {
   });
 
   if (existingUser) {
+    logger.warn(`Register failed: Email already exists (${data.email})`);
     throw new AppError("Email already exists", 409);
   }
 
@@ -36,6 +39,7 @@ export const register = async (data: SignupDto) => {
     },
   });
 
+  logger.info(`User registered successfully: ${user.email}`);
   return generateToken(user.id, user.role);
 };
 
@@ -43,8 +47,11 @@ export const signin = async (data: SigninDto) => {
   const user = await prisma.user.findUnique({ where: { email: data.email } });
 
   if (user && (await bcrypt.compare(data.password, user.password))) {
+    logger.info(`User login successful: ${user.email}`);
     return generateToken(user.id, user.role);
   }
+
+  logger.warn(`User login failed: ${data.email}`);
   throw new AppError("Invalid credentials", 401);
 };
 
@@ -52,6 +59,7 @@ export const requestPasswordReset = async (email: string) => {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
+    logger.warn(`Password reset requested for unknown email: ${email}`);
     throw new AppError("Email not found", 404);
   }
 
@@ -65,6 +73,7 @@ export const requestPasswordReset = async (email: string) => {
     html: passwordResetTemplate(resetUrl),
   });
 
+  logger.info(`Password reset email sent: ${email}`);
   return { message: "Reset email sent" };
 };
 
@@ -73,6 +82,7 @@ export const resetPassword = async (token: string, newPassword: string) => {
   try {
     payload = verifyResetToken(token);
   } catch {
+    logger.warn("Invalid or expired password reset token used");
     throw new AppError("Invalid or expired token", 400);
   }
 
@@ -83,7 +93,11 @@ export const resetPassword = async (token: string, newPassword: string) => {
       where: { id: (payload as any).userid },
       data: { password: hashed },
     });
+    logger.info(
+      `Password reset successful for user ID: ${(payload as any).userid}`
+    );
   } else {
+    logger.error("Token payload missing user ID");
     throw new Error("Invalid token");
   }
 
@@ -97,14 +111,21 @@ export const changePassword = async (
   confirmPassword: string
 ) => {
   if (newPassword !== confirmPassword) {
+    logger.warn(`Password mismatch for user ID: ${userId}`);
     throw new AppError("Passwords do not match", 400);
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) throw new AppError("User not found", 404);
+  if (!user) {
+    logger.error(`User not found for password change: ID ${userId}`);
+    throw new AppError("User not found", 404);
+  }
 
   const isMatch = await verifyPassword(oldPassword, user.password);
-  if (!isMatch) throw new AppError("Old password is incorrect", 401);
+  if (!isMatch) {
+    logger.warn(`Incorrect old password for user ID: ${userId}`);
+    throw new AppError("Old password is incorrect", 401);
+  }
 
   const hashed = await hashPassword(newPassword);
   await prisma.user.update({
@@ -112,5 +133,6 @@ export const changePassword = async (
     data: { password: hashed },
   });
 
+  logger.info(`Password changed successfully for user ID: ${userId}`);
   return { message: "Password changed successfully" };
 };

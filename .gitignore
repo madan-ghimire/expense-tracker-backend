@@ -11,6 +11,8 @@ build/
 .next/
 out/
 
+logs/
+
 # TypeScript
 *.tsbuildinfo
 

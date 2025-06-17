@@ -144,7 +144,12 @@ router.get("/api/expense/getById/:id", getExpense);
  *       500:
  *         description: Internal Server Error
  */
-router.post("/api/expenses", authenticate, authorize("ADMIN"), createExpense);
+router.post(
+  "/api/expenses",
+  authenticate,
+  authorize("ADMINISTRATOR"),
+  createExpense
+);
 
 /**
  * @swagger
@@ -205,7 +210,7 @@ router.put("/api/expense/:id", authenticate, updateExpense);
 router.delete(
   "/api/expense/:id",
   authenticate,
-  authorize("ADMIN"),
+  authorize("ADMINISTRATOR"),
   deleteExpense
 );
 

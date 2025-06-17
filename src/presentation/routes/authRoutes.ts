@@ -64,7 +64,7 @@ const router: Router = Router();
  *               password:
  *                 type: string
  *                 format: password
- *                 example: P@ssw0rd123
+ *                 example: P@ssword123
  *     responses:
  *       201:
  *         description: User created successfully
@@ -96,7 +96,7 @@ router.post("/auth/signup", register);
  *                 example: "user@example.com"
  *               password:
  *                 type: string
- *                 example: "your-password"
+ *                 example: "P@ssword123"
  *     responses:
  *       200:
  *         description: Login successful
