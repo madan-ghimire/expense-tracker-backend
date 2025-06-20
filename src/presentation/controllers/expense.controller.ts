@@ -1,12 +1,21 @@
 import { Request, Response, NextFunction, response } from "express";
 
-import { addExpense } from "../../application/user-cases/addExpense";
-import { PrismaExpenseRepository } from "../../infrastructure/database/repositories/PrismaExpenseRepository";
+// Extend Express Request interface to include 'user'
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
+// import { addExpense } from "../../application/user-cases/addExpense";
+import { ExpenseRepository } from "../../infrastructure/database/repositories/ExpenseRepository";
 import { PrismaClient } from "@prisma/client";
 import axios from "axios";
 
 const prisma = new PrismaClient();
-const expenseRepo = new PrismaExpenseRepository(prisma);
+const expenseRepo = new ExpenseRepository(prisma);
 
 export const createExpense = async (
   req: Request,
@@ -14,15 +23,20 @@ export const createExpense = async (
   next: NextFunction
 ) => {
   try {
-    console.log("📥 Expense creation request received:", req.body);
+    console.log("📥 Expense creation request received:", req.user);
     const { title, amount, category, userId, createdAt } = req.body;
-    const expense = await addExpense(expenseRepo, {
+
+    const data = {
       title,
       amount,
       category,
       userId,
       createdAt,
-    });
+      createdById: req.user.id,
+      modifiedById: req.user.id,
+    };
+
+    const expense = await expenseRepo.create(data as any);
 
     // ✅ send webhook event after expense is created
     try {

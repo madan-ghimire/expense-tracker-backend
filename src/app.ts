@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import helmet from "helmet";
 import fs from "fs";
 import path from "path";
 import expenseRoutes from "./presentation/routes/expense.routes";
@@ -16,6 +17,9 @@ const createApp = (): Express => {
   const app = express();
 
   app.use(logRequests);
+
+  // ✅ Security headers
+  app.use(helmet());
   // ✅ Create path to ../logs/access.log
   const logPath = path.join(__dirname, "..", "logs", "access.log");
   // Ensure log directory exists

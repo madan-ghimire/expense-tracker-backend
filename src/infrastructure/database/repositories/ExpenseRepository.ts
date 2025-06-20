@@ -2,7 +2,7 @@ import { Expense } from "@prisma/client";
 import { BaseRepository } from "./BaseRepository";
 import { PrismaClient } from "@prisma/client";
 
-export class PrismaExpenseRepository extends BaseRepository<Expense> {
+export class ExpenseRepository extends BaseRepository<Expense> {
   constructor(private readonly prisma: PrismaClient) {
     super(prisma.expense);
   }
