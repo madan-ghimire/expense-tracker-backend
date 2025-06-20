@@ -23,7 +23,8 @@ export const authenticate = (
 
     next();
   } catch (error) {
-    res.status(403).json({ message: "Unauthorized" });
+    console.log("check exact error here", error);
+    next(error);
     return;
   }
 };

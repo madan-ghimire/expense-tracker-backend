@@ -3,6 +3,7 @@ import { Request, Response, NextFunction, response } from "express";
 import { addExpense } from "../../application/user-cases/addExpense";
 import { PrismaExpenseRepository } from "../../infrastructure/database/repositories/PrismaExpenseRepository";
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 
 const prisma = new PrismaClient();
 const expenseRepo = new PrismaExpenseRepository(prisma);
@@ -13,7 +14,7 @@ export const createExpense = async (
   next: NextFunction
 ) => {
   try {
-    console.log("check expense post here i am", req.body);
+    console.log("📥 Expense creation request received:", req.body);
     const { title, amount, category, userId, createdAt } = req.body;
     const expense = await addExpense(expenseRepo, {
       title,
@@ -22,6 +23,18 @@ export const createExpense = async (
       userId,
       createdAt,
     });
+
+    // ✅ send webhook event after expense is created
+    try {
+      await axios.post("http://localhost:8080/api/webhook", {
+        type: "expense.created",
+        data: expense,
+      });
+      console.log("📡 Webhook sent successfully.");
+    } catch (webhookError: any) {
+      console.error("❌ Failed to send webhook:", webhookError.message);
+    }
+
     res.status(201).json(expense);
   } catch (error) {
     next(error); // 👈 forward to error middleware

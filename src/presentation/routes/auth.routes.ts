@@ -4,7 +4,7 @@ import {
   register,
   handleRequestPasswordReset,
   handleChangePassword,
-} from "../controllers/authController";
+} from "../controllers/auth.controller";
 import { authenticate } from "@/middlewares/authenticate";
 
 const router: Router = Router();

@@ -2,13 +2,14 @@ import express from "express";
 import morgan from "morgan";
 import fs from "fs";
 import path from "path";
-import expenseRoutes from "./presentation/routes/expenseRoutes";
+import expenseRoutes from "./presentation/routes/expense.routes";
 import type { Express, Request, Response } from "express";
 import { errorHandler } from "./middlewares/errorHandler";
 import swaggerUi from "swagger-ui-express";
 import { swaggerOptions } from "./infrastructure/config/swagger";
 import swaggerJSDoc from "swagger-jsdoc";
-import authRoutes from "./presentation/routes/authRoutes";
+import authRoutes from "./presentation/routes/auth.routes";
+import webhookRoutes from "./presentation/routes/webhook.routes";
 import { logRequests } from "./middlewares/loggerMiddleware";
 
 const createApp = (): Express => {
@@ -48,8 +49,8 @@ const createApp = (): Express => {
   });
 
   app.use(expenseRoutes);
-
   app.use(authRoutes);
+  app.use(webhookRoutes);
 
   app.use(errorHandler);
 

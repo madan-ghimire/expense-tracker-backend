@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { AppError } from "../domain/errors/AppError";
 import { ZodError } from "zod";
+import jwt from "jsonwebtoken";
 
 const prismaErrorMessages: Record<string, string> = {
   P1000: "Authentication failed against the database.",
@@ -59,7 +60,17 @@ export const errorHandler = (
 ): void => {
   console.error("🛑 Error occurred:", err);
 
-  // ✅ Handle Zod validation errors (NEW)
+  // JWT Token Expired
+  if (err.name === "TokenExpiredError") {
+    res.status(401).json({ error: "Token has expired. Please log in again." });
+  }
+
+  // ✅ JWT Invalid Token
+  if (err.name === "JsonWebTokenError") {
+    res.status(401).json({ error: "Invalid token. Authentication failed." });
+  }
+
+  // ✅ Handle Zod validation errors (NEW)r
   if (err instanceof ZodError) {
     const flattened = err.flatten();
     res.status(400).json({

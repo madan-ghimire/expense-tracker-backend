@@ -6,7 +6,7 @@ import {
   getExpense,
   updateExpense,
   deleteExpense,
-} from "../controllers/expenseController";
+} from "../controllers/expense.controller";
 import { authenticate } from "@/middlewares/authenticate";
 import { authorize } from "@/middlewares/authorize";
 
